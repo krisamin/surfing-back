@@ -13,7 +13,7 @@ app.add_middleware(AccessLoggingMiddleware)
 
 
 origins = [
-    "https://surfing.dimigo.in"
+    "https://surfing.dimigo.in",
     "https://surfing.2w.vc"
 ]
 
