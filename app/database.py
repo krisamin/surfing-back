@@ -6,7 +6,7 @@ from app import setting
 db_url: str = 'mysql+pymysql://{username}:{password}@{db_host}:{db_port}/{db_name}'.format(
     username=setting.MYSQL_USER,
     password=setting.MYSQL_PASSWORD,
-    db_host="surfing-mariadb",
+    db_host="db",
     db_port=setting.MYSQL_PORT,
     db_name=setting.MYSQL_DATABASE
 )
