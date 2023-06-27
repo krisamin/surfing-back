@@ -1,0 +1,11 @@
+default:
+  tags:
+    - service
+
+stages:
+  - check
+
+check-job:
+  stage: check
+  script:
+    - echo $ENV_FILE
