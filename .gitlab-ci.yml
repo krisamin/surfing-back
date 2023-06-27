@@ -27,6 +27,7 @@ deploy-job:
       docker run -d
       --name $CI_PROJECT_PATH_SLUG
       --restart always
+      --entrypoint="gunicorn app.main:app --config gunicorn.conf.py"
       --env-file $VAR_FILE
       --label traefik.enable=true
       --label traefik.http.routers.$CI_PROJECT_PATH_SLUG.entrypoints=https
