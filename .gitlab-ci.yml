@@ -28,6 +28,7 @@ deploy-job:
       --name $CI_PROJECT_PATH_SLUG
       --restart always
       --env-file $VAR_FILE
+      -v /data/workspace/surfing/log:/log
       --label traefik.enable=true
       --label traefik.http.routers.$CI_PROJECT_PATH_SLUG.entrypoints=https
       --label traefik.http.routers.$CI_PROJECT_PATH_SLUG.rule='Host(`surfing-api.2w.vc`)'
