@@ -8,3 +8,5 @@ RUN pip install --no-cache-dir --upgrade -r /requirements.txt
 
 COPY ./gunicorn.conf.py /gunicorn.conf.py
 COPY ./app /app
+
+CMD [ "gunicorn", "app.main:app", "--config", "gunicorn.conf.py" ]
