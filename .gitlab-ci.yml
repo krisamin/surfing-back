@@ -31,7 +31,7 @@ deploy-job:
       -v /data/workspace/surfing/log:/log
       --label traefik.enable=true
       --label traefik.http.routers.$CI_PROJECT_PATH_SLUG.entrypoints=https
-      --label traefik.http.routers.$CI_PROJECT_PATH_SLUG.rule='Host(`surfing-api.2w.vc`)'
+      --label traefik.http.routers.$CI_PROJECT_PATH_SLUG.rule='Host(`surfing-api.archive.codes`)'
       --label traefik.http.routers.$CI_PROJECT_PATH_SLUG.tls=true
       --label traefik.http.routers.$CI_PROJECT_PATH_SLUG.tls.certresolver=cloudflare
       --label traefik.http.routers.$CI_PROJECT_PATH_SLUG.service=$CI_PROJECT_PATH_SLUG

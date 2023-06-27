@@ -14,7 +14,9 @@ app.add_middleware(AccessLoggingMiddleware)
 
 origins = [
     "https://surfing.dimigo.in",
-    "https://surfing.2w.vc"
+    "https://surfing.2w.vc",
+    "https://archive.codes",
+    "https://*.preview.one"
 ]
 
 app.add_middleware(
