@@ -8,4 +8,4 @@ stages:
 check-job:
   stage: check
   script:
-    - echo $ENV_FILE
+    - echo $VAR_FILE
