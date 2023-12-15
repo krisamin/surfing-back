@@ -24,7 +24,7 @@ deploy-job:
   script:
     - docker rm -f $CI_PROJECT_PATH_SLUG
     - >
-      docker run -d
+      docker create
       --name $CI_PROJECT_PATH_SLUG
       --restart always
       --env-file $VAR_FILE
@@ -37,5 +37,6 @@ deploy-job:
       --label traefik.http.routers.$CI_PROJECT_PATH_SLUG.service=$CI_PROJECT_PATH_SLUG
       --label traefik.http.services.$CI_PROJECT_PATH_SLUG.loadbalancer.server.port=8000
       --network proxy
-      --network database
       $CI_REGISTRY_IMAGE:latest
+    - docker network connect surfing-production $CI_PROJECT_PATH_SLUG
+    - docker start $CI_PROJECT_PATH_SLUG
