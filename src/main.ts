@@ -1,3 +1,5 @@
+import { join } from "path";
+
 import { NestFactory } from "@nestjs/core";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import helmet from "helmet";
@@ -10,6 +12,8 @@ async function bootstrap() {
 
   app.enableCors();
   app.use(helmet({ contentSecurityPolicy: false }));
+
+  app.useStaticAssets(join(process.cwd(), "public"));
 
   await SwaggerSetup(app);
 

@@ -1,3 +1,7 @@
+import { createWriteStream, existsSync } from "fs";
+import { join } from "path";
+
+import { HttpService } from "@nestjs/axios";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectModel } from "@nestjs/mongoose";
@@ -10,6 +14,7 @@ import { Circle, CircleDocument } from "src/schemas";
 export class CircleService {
   constructor(
     private readonly configService: ConfigService,
+    private readonly httpService: HttpService,
 
     @InjectModel(Circle.name)
     private circleModel: Model<CircleDocument>,
@@ -19,6 +24,18 @@ export class CircleService {
     return await this.circleModel.find();
   }
 
+  async download(id: string): Promise<void> {
+    const path = join(process.cwd(), "public/assets", id);
+    if (existsSync(path)) return;
+    const writer = createWriteStream(path);
+    const response = await this.httpService.axiosRef({
+      url: "https://drive.usercontent.google.com/download?id=" + id,
+      method: "GET",
+      responseType: "stream",
+    });
+    response.data.pipe(writer);
+  }
+
   async refresh(): Promise<string> {
     const gs = new Sheets("1v83EQMKi-FkLcgLov2MP9Iel6UfeOERtrQ90-6J_ozE");
     await gs.authorizeApiKey(this.configService.get("GOOGLE_SHEET_KEY"));
@@ -26,8 +43,16 @@ export class CircleService {
 
     for (const row of tables.rows) {
       if (row["이메일 주소"]?.stringValue === undefined) continue;
+      console.log(row);
+      const iconUrl = new URL(row["🌆 동아리 로고"]?.stringValue || "");
+      const iconId = iconUrl.searchParams.get("id");
+      if (iconId) {
+        await this.download(iconId);
+      }
+
       const circle = {
         email: row["이메일 주소"]?.stringValue || null,
+        icon: iconUrl.searchParams.get("id") || null,
         name: row["😎 동아리 이름"]?.stringValue || null,
         slogun: row["🔫 동아리 슬로건"]?.stringValue || null,
         category: row["🪪 동아리 카테고리"]?.stringValue || null,

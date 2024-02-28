@@ -21,6 +21,13 @@ export class Circle {
     required: true,
     type: String,
   })
+  icon: string;
+
+  @ApiProperty()
+  @Prop({
+    required: true,
+    type: String,
+  })
   name: string;
 
   @ApiProperty()
