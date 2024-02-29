@@ -50,7 +50,7 @@ export class AuthService {
     }
   }
 
-  async login(token: string): Promise<TokensResponseDto> {
+  async login(token: string): Promise<string> {
     const payload = await this.decodeToken(token);
     const { data } = payload;
 
@@ -75,7 +75,15 @@ export class AuthService {
       },
     );
 
-    return await this.createToken(user._id);
+    const { access, refresh } = await this.createToken(user._id);
+
+    const url = this.configService.get<string>("FRONT_URL");
+    const redirect = new URL(url);
+    redirect.pathname = "/auth";
+    redirect.searchParams.append("access", access);
+    redirect.searchParams.append("refresh", refresh);
+
+    return redirect.toString();
   }
 
   async createToken(userId: Types.ObjectId): Promise<TokensResponseDto> {

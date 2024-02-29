@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, Res } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiOkResponse } from "@nestjs/swagger";
+import { Response } from "express";
 
 import { TokenDto, TokensResponseDto } from "../dto";
 import { AuthService } from "../providers";
@@ -10,10 +11,9 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiOperation({ summary: "로그인" })
-  @ApiOkResponse({ type: TokensResponseDto })
   @Get()
-  async login(@Query("token") token: string): Promise<TokensResponseDto> {
-    return await this.authService.login(token);
+  async login(@Query("token") token: string, @Res() res: Response) {
+    res.redirect(await this.authService.login(token));
   }
 
   @ApiOperation({ summary: "토큰 갱신" })
