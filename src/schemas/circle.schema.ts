@@ -21,7 +21,7 @@ export class Circle {
     required: true,
     type: String,
   })
-  icon: string;
+  logo: string;
 
   @ApiProperty()
   @Prop({
@@ -84,7 +84,7 @@ export class Circle {
     required: false,
     type: String,
   })
-  webstie: string;
+  website: string;
 }
 
 export const CircleSchema = SchemaFactory.createForClass(Circle);

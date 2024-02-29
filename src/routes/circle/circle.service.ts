@@ -44,15 +44,15 @@ export class CircleService {
     for (const row of tables.rows) {
       if (row["이메일 주소"]?.stringValue === undefined) continue;
       console.log(row);
-      const iconUrl = new URL(row["🌆 동아리 로고"]?.stringValue || "");
-      const iconId = iconUrl.searchParams.get("id");
-      if (iconId) {
-        await this.download(iconId);
+      const logoUrl = new URL(row["🌆 동아리 로고"]?.stringValue || "");
+      const logoId = logoUrl.searchParams.get("id");
+      if (logoId) {
+        await this.download(logoId);
       }
 
       const circle = {
         email: row["이메일 주소"]?.stringValue || null,
-        icon: iconUrl.searchParams.get("id") || null,
+        logo: logoUrl.searchParams.get("id") || null,
         name: row["😎 동아리 이름"]?.stringValue || null,
         slogun: row["🔫 동아리 슬로건"]?.stringValue || null,
         category: row["🪪 동아리 카테고리"]?.stringValue || null,
