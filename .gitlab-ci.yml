@@ -37,6 +37,7 @@ deploy-job:
       --label traefik.http.routers.$CI_PROJECT_PATH_SLUG.service=$CI_PROJECT_PATH_SLUG
       --label traefik.http.services.$CI_PROJECT_PATH_SLUG.loadbalancer.server.port=3000
       --network proxy
+      --volume /data/service/surfing-production/assets:/app/public/assets
       $CI_REGISTRY_IMAGE:latest
     - docker network connect surfing-production $CI_PROJECT_PATH_SLUG
     - docker start $CI_PROJECT_PATH_SLUG
