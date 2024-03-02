@@ -16,4 +16,4 @@ import { CircleService } from "./circle.service";
   providers: [CircleService],
   exports: [CircleService],
 })
-export class FrigoModule {}
+export class CircleModule {}

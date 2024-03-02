@@ -14,7 +14,7 @@ export class Config {
     required: true,
     type: String,
   })
-  name: string;
+  key: string;
 
   @ApiProperty()
   @Prop({
