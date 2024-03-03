@@ -5,7 +5,7 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import helmet from "helmet";
 
 import { AppModule } from "./app";
-import { SwaggerSetup } from "./common";
+import { SwaggerSetup, ValidationPipe } from "./common";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -13,6 +13,7 @@ async function bootstrap() {
   app.enableCors();
   app.use(helmet({ contentSecurityPolicy: false }));
 
+  app.useGlobalPipes(ValidationPipe());
   app.useStaticAssets(join(process.cwd(), "public"));
 
   await SwaggerSetup(app);

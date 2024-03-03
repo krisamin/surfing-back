@@ -5,7 +5,14 @@ import { PassportModule } from "@nestjs/passport";
 
 import { ConfigModule, JwtModule } from "src/common";
 
-import { User, UserSchema, Token, TokenSchema } from "src/schemas";
+import {
+  User,
+  UserSchema,
+  Token,
+  TokenSchema,
+  Circle,
+  CircleSchema,
+} from "src/schemas";
 
 import { AuthController } from "./controllers/auth.controller";
 import { AuthService } from "./providers/auth.service";
@@ -16,6 +23,7 @@ import { JwtStrategy } from "./strategies";
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Token.name, schema: TokenSchema },
+      { name: Circle.name, schema: CircleSchema },
     ]),
     ConfigModule,
     JwtModule,

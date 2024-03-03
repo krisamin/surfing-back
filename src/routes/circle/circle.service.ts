@@ -2,13 +2,25 @@ import { createWriteStream, existsSync } from "fs";
 import { join } from "path";
 
 import { HttpService } from "@nestjs/axios";
-import { Injectable } from "@nestjs/common";
+import { HttpStatus, Inject, Injectable, forwardRef } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 import Sheets from "node-sheets";
 
-import { Circle, CircleDocument } from "src/schemas";
+import { Exception } from "src/common";
+
+import {
+  Circle,
+  CircleDocument,
+  Submit,
+  SubmitDocument,
+  UserDocument,
+} from "src/schemas";
+
+import { StatusService } from "../status/status.service";
+
+import { SubmitDto } from "./circle.dto";
 
 @Injectable()
 export class CircleService {
@@ -18,7 +30,20 @@ export class CircleService {
 
     @InjectModel(Circle.name)
     private circleModel: Model<CircleDocument>,
+
+    @InjectModel(Submit.name)
+    private submitModel: Model<SubmitDocument>,
+
+    @Inject(forwardRef(() => StatusService))
+    private statusService: StatusService,
   ) {}
+
+  async getCircle(id: Types.ObjectId): Promise<CircleDocument> {
+    const circle = await this.circleModel.findById(id);
+    if (!circle) throw new Exception(HttpStatus.NOT_FOUND, "circleNotFound");
+
+    return circle;
+  }
 
   async get(): Promise<CircleDocument[]> {
     return await this.circleModel.find();
@@ -76,5 +101,59 @@ export class CircleService {
     }
 
     return "success";
+  }
+
+  async my(user: UserDocument): Promise<SubmitDocument[]> {
+    const submit = await this.submitModel.find({
+      user: new Types.ObjectId(user._id),
+    });
+
+    const status = await this.statusService.get();
+    switch (status) {
+      case "FIRST": {
+        return submit.map((s) => {
+          s.status = "SUBMIT";
+          return s;
+        });
+      }
+      case "SECOND": {
+        return submit.map((s) => {
+          if (s.status === "SECOND" || s.status === "SECONDREJECT")
+            s.status = "FIRST";
+          return s;
+        });
+      }
+      default: {
+        return submit;
+      }
+    }
+  }
+
+  async submit(user: UserDocument, data: SubmitDto): Promise<SubmitDocument> {
+    const circle = await this.circleModel.findById(data.circle);
+    const userId = new Types.ObjectId(user._id);
+
+    const exist = await this.submitModel.findOne({
+      user: userId,
+      circle: circle._id,
+    });
+    if (exist) throw new Exception(HttpStatus.BAD_REQUEST, "alreadySubmitted");
+
+    const exists = await this.submitModel.find({ user: userId });
+    if (exists.length >= 3)
+      throw new Exception(HttpStatus.BAD_REQUEST, "limit");
+
+    const submit = new this.submitModel({
+      user: userId,
+      circle: circle._id,
+      question1: data.question1,
+      question2: data.question2,
+      question3: data.question3,
+      question4: data.question4,
+      status: "SUBMIT",
+    });
+    await submit.save();
+
+    return submit;
   }
 }

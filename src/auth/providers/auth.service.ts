@@ -8,7 +8,14 @@ import { firstValueFrom } from "rxjs";
 
 import { Exception } from "src/common";
 
-import { User, UserDocument, Token, TokenDocument } from "src/schemas";
+import {
+  User,
+  UserDocument,
+  Token,
+  TokenDocument,
+  Circle,
+  CircleDocument,
+} from "src/schemas";
 
 import { TokenDto, TokensResponseDto } from "../dto";
 import { OAuthPayload, Payload } from "../interface";
@@ -25,6 +32,9 @@ export class AuthService {
 
     @InjectModel(Token.name)
     private tokenModel: Model<TokenDocument>,
+
+    @InjectModel(Circle.name)
+    private circleModel: Model<CircleDocument>,
   ) {}
 
   async getPublicKey(): Promise<string> {
@@ -64,7 +74,6 @@ export class AuthService {
       class: data.studentId.class,
       number: data.studentId.number,
     };
-    console.log(userData);
 
     const user = await this.userModel.findOneAndUpdate(
       { email: userData.email },
@@ -88,23 +97,25 @@ export class AuthService {
 
   async createToken(userId: Types.ObjectId): Promise<TokensResponseDto> {
     const user = await this.userModel.findById(userId).lean();
+    const admin = await this.circleModel.findOne({ email: user.email }).lean();
+    const isAdmin = admin ? true : false;
 
     const access = await this.jwtService.signAsync(
-      { ...user, refresh: false },
+      { ...user, admin: isAdmin ? admin._id : null, refresh: false },
       {
         expiresIn: "30m",
       },
     );
 
     const refresh = await this.jwtService.signAsync(
-      { _id: userId, refresh: true },
+      { _id: user._id, refresh: true },
       {
         expiresIn: "1y",
       },
     );
 
     await new this.tokenModel({
-      user: userId,
+      user: user._id,
       token: refresh,
     }).save();
 

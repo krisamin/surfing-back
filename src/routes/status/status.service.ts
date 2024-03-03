@@ -16,7 +16,6 @@ export class StatusService {
   async get(): Promise<StatusType> {
     const status = await this.ConfigModel.findOne({ key: "status" });
     const statusValue = (status?.value || "EOL") as StatusType;
-    console.log("statusValue", statusValue);
 
     if (!StatusList.includes(statusValue)) return "EOL";
     return statusValue;
