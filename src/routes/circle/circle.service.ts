@@ -68,11 +68,24 @@ export class CircleService {
 
     for (const row of tables.rows) {
       if (row["이메일 주소"]?.stringValue === undefined) continue;
-      console.log(row);
       const logoUrl = new URL(row["🌆 동아리 로고"]?.stringValue || "");
       const logoId = logoUrl.searchParams.get("id");
       if (logoId) {
         await this.download(logoId);
+      }
+
+      const image = [];
+      if (row["🌠 활동 사진 (최대 10개)"]) {
+        for (const url of row["🌠 활동 사진 (최대 10개)"].stringValue.split(
+          ", ",
+        )) {
+          const imageUrl = new URL(url);
+          const imageId = imageUrl.searchParams.get("id");
+          if (imageId) {
+            await this.download(imageId);
+            image.push(imageId);
+          }
+        }
       }
 
       const circle = {
@@ -93,6 +106,7 @@ export class CircleService {
             ? row["🛜 동아리 웹 사이트(URL)"].stringValue.split("?")[0]
             : `http://${row["🛜 동아리 웹 사이트(URL)"].stringValue.split("?")[0]}`
           : null,
+        image: image,
       };
 
       await this.circleModel.updateOne({ email: circle.email }, circle, {

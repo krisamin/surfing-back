@@ -85,6 +85,13 @@ export class Circle {
     type: String,
   })
   website: string;
+
+  @ApiProperty()
+  @Prop({
+    required: false,
+    type: [String],
+  })
+  image: string[];
 }
 
 export const CircleSchema = SchemaFactory.createForClass(Circle);
