@@ -1,5 +1,5 @@
 import { IsMongoId } from "class-validator";
-import { IsString } from "nestjs-swagger-dto";
+import { IsBoolean, IsString } from "nestjs-swagger-dto";
 
 export class SubmitDto {
   @IsString({
@@ -35,4 +35,25 @@ export class SubmitDto {
     maxLength: 300,
   })
   question4: string;
+}
+
+export class AdminDto {
+  @IsString({
+    description: "서류 ID",
+  })
+  @IsMongoId()
+  submit: string;
+
+  @IsBoolean({
+    description: "합격 여부",
+  })
+  pass: boolean;
+}
+
+export class FinalDto {
+  @IsString({
+    description: "서류 ID",
+  })
+  @IsMongoId()
+  submit: string;
 }

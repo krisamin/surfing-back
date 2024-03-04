@@ -20,7 +20,7 @@ import {
 
 import { StatusService } from "../status/status.service";
 
-import { SubmitDto } from "./circle.dto";
+import { AdminDto, FinalDto, SubmitDto } from "./circle.dto";
 
 @Injectable()
 export class CircleService {
@@ -176,6 +176,75 @@ export class CircleService {
         circle: admin,
       })
       .populate("user");
+
+    return submit;
+  }
+
+  async first(
+    user: UserDocument & {
+      admin: Types.ObjectId;
+    },
+    data: AdminDto,
+  ): Promise<SubmitDocument> {
+    const admin = new Types.ObjectId(user.admin);
+    if (!admin) new Exception(HttpStatus.BAD_REQUEST, "권한이 없습니다.");
+
+    const submit = await this.submitModel.findById(data.submit);
+    if (!submit) throw new Exception(HttpStatus.NOT_FOUND, "submitNotFound");
+
+    if (["SUBMIT", "FIRST", "FIRSTREJECT"].includes(submit.status)) {
+      submit.status = data.pass ? "FIRST" : "FIRSTREJECT";
+      await submit.save();
+    }
+
+    return submit;
+  }
+
+  async second(
+    user: UserDocument & {
+      admin: Types.ObjectId;
+    },
+    data: AdminDto,
+  ): Promise<SubmitDocument> {
+    const admin = new Types.ObjectId(user.admin);
+    if (!admin) new Exception(HttpStatus.BAD_REQUEST, "권한이 없습니다.");
+
+    const submit = await this.submitModel.findById(data.submit);
+    if (!submit) throw new Exception(HttpStatus.NOT_FOUND, "submitNotFound");
+
+    if (["FIRST", "SECOND", "SECONDREJECT"].includes(submit.status)) {
+      submit.status = data.pass ? "SECOND" : "SECONDREJECT";
+      await submit.save();
+    }
+
+    return submit;
+  }
+
+  async final(user: UserDocument, data: FinalDto): Promise<SubmitDocument> {
+    const userId = new Types.ObjectId(user._id);
+    const submit = await this.submitModel.findOne({
+      _id: data.submit,
+      user: userId,
+    });
+
+    const exist = await this.submitModel.findOne({
+      user: userId,
+      status: "FINAL",
+    });
+    if (exist)
+      throw new Exception(
+        HttpStatus.BAD_REQUEST,
+        "이미 최종 선택을 하였습니다.",
+      );
+
+    if (submit.status !== "SECOND")
+      throw new Exception(
+        HttpStatus.BAD_REQUEST,
+        "최종 합격한 동아리만 최종 선택이 가능합니다.",
+      );
+
+    submit.status = "FINAL";
+    await submit.save();
 
     return submit;
   }

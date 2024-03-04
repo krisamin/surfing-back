@@ -7,7 +7,7 @@ import { JwtAuthGuard } from "src/auth";
 
 import { CircleDocument, SubmitDocument, UserDocument } from "src/schemas";
 
-import { SubmitDto } from "./circle.dto";
+import { AdminDto, FinalDto, SubmitDto } from "./circle.dto";
 import { CircleService } from "./circle.service";
 
 @ApiTags("Circle")
@@ -48,5 +48,42 @@ export class CircleController {
         admin: Types.ObjectId;
       },
     );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("first")
+  async first(
+    @Req() req: Request,
+    @Body() data: AdminDto,
+  ): Promise<SubmitDocument> {
+    return await this.circleService.first(
+      req.user as UserDocument & {
+        admin: Types.ObjectId;
+      },
+      data,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("second")
+  async second(
+    @Req() req: Request,
+    @Body() data: AdminDto,
+  ): Promise<SubmitDocument> {
+    return await this.circleService.second(
+      req.user as UserDocument & {
+        admin: Types.ObjectId;
+      },
+      data,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("final")
+  async final(
+    @Req() req: Request,
+    @Body() data: FinalDto,
+  ): Promise<SubmitDocument> {
+    return await this.circleService.final(req.user as UserDocument, data);
   }
 }
