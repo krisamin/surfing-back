@@ -104,9 +104,11 @@ export class CircleService {
   }
 
   async my(user: UserDocument): Promise<SubmitDocument[]> {
-    const submit = await this.submitModel.find({
-      user: new Types.ObjectId(user._id),
-    });
+    const submit = await this.submitModel
+      .find({
+        user: new Types.ObjectId(user._id),
+      })
+      .populate("circle");
 
     const status = await this.statusService.get();
     switch (status) {
@@ -137,11 +139,15 @@ export class CircleService {
       user: userId,
       circle: circle._id,
     });
-    if (exist) throw new Exception(HttpStatus.BAD_REQUEST, "alreadySubmitted");
+    if (exist)
+      throw new Exception(HttpStatus.BAD_REQUEST, "이미 제출하였습니다.");
 
     const exists = await this.submitModel.find({ user: userId });
     if (exists.length >= 3)
-      throw new Exception(HttpStatus.BAD_REQUEST, "limit");
+      throw new Exception(
+        HttpStatus.BAD_REQUEST,
+        "최대 3개까지만 제출 가능합니다.",
+      );
 
     const submit = new this.submitModel({
       user: userId,
@@ -153,6 +159,23 @@ export class CircleService {
       status: "SUBMIT",
     });
     await submit.save();
+
+    return submit;
+  }
+
+  async admin(
+    user: UserDocument & {
+      admin: Types.ObjectId;
+    },
+  ): Promise<SubmitDocument[]> {
+    const admin = new Types.ObjectId(user.admin);
+    if (!admin) return [];
+
+    const submit = await this.submitModel
+      .find({
+        circle: admin,
+      })
+      .populate("user");
 
     return submit;
   }

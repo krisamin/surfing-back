@@ -1,10 +1,11 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { Request } from "express";
+import { Types } from "mongoose";
 
 import { JwtAuthGuard } from "src/auth";
 
-import { CircleDocument, SubmitDocument } from "src/schemas";
+import { CircleDocument, SubmitDocument, UserDocument } from "src/schemas";
 
 import { SubmitDto } from "./circle.dto";
 import { CircleService } from "./circle.service";
@@ -37,5 +38,15 @@ export class CircleController {
     @Body() data: SubmitDto,
   ): Promise<SubmitDocument> {
     return await this.circleService.submit(req.user, data);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get("admin")
+  async admin(@Req() req: Request): Promise<SubmitDocument[]> {
+    return await this.circleService.admin(
+      req.user as UserDocument & {
+        admin: Types.ObjectId;
+      },
+    );
   }
 }
