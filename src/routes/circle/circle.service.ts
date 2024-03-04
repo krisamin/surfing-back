@@ -135,6 +135,10 @@ export class CircleService {
     const circle = await this.circleModel.findById(data.circle);
     const userId = new Types.ObjectId(user._id);
 
+    const status = await this.statusService.get();
+    if (status !== "SUBMIT")
+      throw new Exception(HttpStatus.BAD_REQUEST, "제출 기간이 아닙니다.");
+
     const exist = await this.submitModel.findOne({
       user: userId,
       circle: circle._id,
@@ -189,6 +193,10 @@ export class CircleService {
     const admin = new Types.ObjectId(user.admin);
     if (!admin) new Exception(HttpStatus.BAD_REQUEST, "권한이 없습니다.");
 
+    const status = await this.statusService.get();
+    if (status !== "FIRST")
+      throw new Exception(HttpStatus.BAD_REQUEST, "1차 심사 기간이 아닙니다.");
+
     const submit = await this.submitModel.findById(data.submit);
     if (!submit) throw new Exception(HttpStatus.NOT_FOUND, "submitNotFound");
 
@@ -209,6 +217,10 @@ export class CircleService {
     const admin = new Types.ObjectId(user.admin);
     if (!admin) new Exception(HttpStatus.BAD_REQUEST, "권한이 없습니다.");
 
+    const status = await this.statusService.get();
+    if (status !== "SECOND")
+      throw new Exception(HttpStatus.BAD_REQUEST, "2차 심사 기간이 아닙니다.");
+
     const submit = await this.submitModel.findById(data.submit);
     if (!submit) throw new Exception(HttpStatus.NOT_FOUND, "submitNotFound");
 
@@ -226,6 +238,10 @@ export class CircleService {
       _id: data.submit,
       user: userId,
     });
+
+    const status = await this.statusService.get();
+    if (status !== "FINAL")
+      throw new Exception(HttpStatus.BAD_REQUEST, "최종 선택 기간이 아닙니다.");
 
     const exist = await this.submitModel.findOne({
       user: userId,
